@@ -9,13 +9,8 @@ scikit-image
 imageio
 numpy
 
-# OCR engines (primary: easyocr + tesseract)
+# OCR engines
 pytesseract
-easyocr
-
-# ML backbone for EasyOCR
-torch
-torchvision
 
 # Document output
 python-docx
