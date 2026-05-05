@@ -114,14 +114,15 @@ class FeedbackLoop:
         # ---- Compute overall score ----
         conf_score = report.avg_confidence
         gibberish_penalty = report.gibberish_ratio * 0.5
-        short_penalty = max(0, report.short_word_ratio - 0.3) * 0.3
-        # Single-char fragmentation is the strongest failure signal
-        fragmentation_penalty = single_char_ratio * 0.65
+        short_penalty = max(0, report.short_word_ratio - 0.3) * 0.2
+        # Reduced: Tesseract on handwriting naturally produces single-char tokens
+        # — penalise but don't treat it as total failure
+        fragmentation_penalty = single_char_ratio * 0.25
         # Excessive isolated digits signals diagram/table confusion
-        numeric_penalty = max(0, numeric_ratio - 0.2) * 0.45
+        numeric_penalty = max(0, numeric_ratio - 0.2) * 0.3
         # Very low average token length = fragmented output
-        short_len_penalty = max(0, (3.0 - avg_word_len) / 3.0) * 0.3
-        word_bonus = min(0.1, report.word_count / 1000.0)
+        short_len_penalty = max(0, (3.0 - avg_word_len) / 3.0) * 0.15
+        word_bonus = min(0.15, report.word_count / 500.0)
 
         report.overall_score = max(
             0.0,
