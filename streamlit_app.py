@@ -7,6 +7,13 @@ from dotenv import load_dotenv
 # Load environment variables from .env
 load_dotenv()
 
+# Must be the very first Streamlit call
+st.set_page_config(
+    page_title="Image-to-Word Agentic System",
+    page_icon="🤖",
+    layout="wide"
+)
+
 
 @st.cache_resource(show_spinner="⏳ Loading EasyOCR model (first run only)...")
 def _load_easyocr_reader():
@@ -26,17 +33,15 @@ from src.agents.agent_logger import AgentLogger
 from src.agents.safety_guard import SafetyGuard
 from src.formatting_detector import FormattedBlock
 
-st.set_page_config(
-    page_title="Image-to-Word Agentic System",
-    page_icon="🤖",
-    layout="wide"
-)
+# ── Writable temp dir for memory/log files (safe on all platforms incl. Streamlit Cloud) ──
+_TMP_DIR = Path(tempfile.gettempdir()) / "agentic_ocr_data"
+_TMP_DIR.mkdir(parents=True, exist_ok=True)
 
 # Initialize Session State
 if "memory" not in st.session_state:
-    st.session_state.memory = MemoryStore()
+    st.session_state.memory = MemoryStore(memory_path=_TMP_DIR / "agent_memory.json")
 if "logger" not in st.session_state:
-    st.session_state.logger = AgentLogger()
+    st.session_state.logger = AgentLogger(log_path=_TMP_DIR / "agent_decisions.jsonl")
 if "safety" not in st.session_state:
     st.session_state.safety = SafetyGuard(autonomy_level="semi")
 if "orchestrator" not in st.session_state:
@@ -85,7 +90,7 @@ with st.sidebar:
     if st.button("🗑 Clear Memory", use_container_width=True):
         if st.session_state.memory.memory_path.exists():
             os.remove(st.session_state.memory.memory_path)
-        st.session_state.memory = MemoryStore()
+        st.session_state.memory = MemoryStore(memory_path=_TMP_DIR / "agent_memory.json")
         st.session_state.orchestrator.memory = st.session_state.memory
         st.session_state.orchestrator.decision.memory = st.session_state.memory
         st.session_state.orchestrator.feedback.memory = st.session_state.memory
@@ -98,7 +103,7 @@ col1, col2, col3 = st.columns([1, 1.5, 1])
 with col1:
     st.subheader("Image & Profile")
     if uploaded_file is not None:
-        st.image(uploaded_file, caption="Original Image", width='stretch')
+        st.image(uploaded_file, caption="Original Image", use_container_width=True)
         
     with st.expander("📊 Image Profile", expanded=False):
         if st.session_state.last_result and st.session_state.last_result.image_profile:
