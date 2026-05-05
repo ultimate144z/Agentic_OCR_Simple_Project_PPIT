@@ -15,13 +15,8 @@ st.set_page_config(
 )
 
 
-@st.cache_resource(show_spinner="⏳ Loading EasyOCR model (first run only)...")
-def _load_easyocr_reader():
-    """Pre-warm EasyOCR once at startup. Cached globally across all sessions."""
-    import easyocr
-    return easyocr.Reader(["en"], gpu=False)
 
-# Add project root to path if needed
+
 import sys
 project_root = Path(__file__).resolve().parent
 if str(project_root) not in sys.path:
@@ -103,7 +98,7 @@ col1, col2, col3 = st.columns([1, 1.5, 1])
 with col1:
     st.subheader("Image & Profile")
     if uploaded_file is not None:
-        st.image(uploaded_file, caption="Original Image", use_container_width=True)
+        st.image(uploaded_file, caption="Original Image", width='stretch')
         
     with st.expander("📊 Image Profile", expanded=False):
         if st.session_state.last_result and st.session_state.last_result.image_profile:
@@ -138,11 +133,10 @@ if run_agent_btn and uploaded_file is not None:
             tmp.write(uploaded_file.getvalue())
             tmp_path = tmp.name
 
-        # Inject the pre-warmed EasyOCR reader into the OCR engine
-        # so it never triggers a model download mid-run
+        # Disable EasyOCR (not available on Streamlit Cloud — too heavy).
+        # The OCREngine auto-mode will fall back to Tesseract gracefully.
         from src.ocr_engine import OCREngine
-        _easyocr_reader = _load_easyocr_reader()
-        OCREngine._cached_easyocr_reader = _easyocr_reader
+        OCREngine._cached_easyocr_reader = None
 
         progress_bar = st.progress(0, text="Initializing...")
         
@@ -278,4 +272,3 @@ with col3:
                 st.markdown(f"📝 Learned corrections applied: {st.session_state.last_result.corrections_applied}")
         else:
             st.text("Quality report will appear here...")
-
