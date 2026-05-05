@@ -117,7 +117,7 @@ class FeedbackLoop:
         short_penalty = max(0, report.short_word_ratio - 0.3) * 0.2
         # Reduced: Tesseract on handwriting naturally produces single-char tokens
         # — penalise but don't treat it as total failure
-        fragmentation_penalty = single_char_ratio * 0.25
+        fragmentation_penalty = single_char_ratio * 0.65
         # Excessive isolated digits signals diagram/table confusion
         numeric_penalty = max(0, numeric_ratio - 0.2) * 0.3
         # Very low average token length = fragmented output
