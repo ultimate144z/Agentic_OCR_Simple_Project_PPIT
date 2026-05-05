@@ -1,3 +1,6 @@
+import pytesseract
+pytesseract.pytesseract.tesseract_cmd = "/usr/bin/tesseract"
+
 import streamlit as st
 import tempfile
 import os
