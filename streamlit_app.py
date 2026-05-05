@@ -1,5 +1,59 @@
-import pytesseract
-pytesseract.pytesseract.tesseract_cmd = "/usr/bin/tesseract"
+import os
+import subprocess
+import sys
+
+def _setup_tesseract():
+    """
+    Dynamically find the tesseract binary and language data at runtime.
+    Works on Streamlit Cloud (Debian), Ubuntu, and Windows without hardcoding.
+    """
+    import pytesseract
+
+    # ── 1. Find the binary ──────────────────────────────────────
+    binary = None
+    try:
+        r = subprocess.run(["which", "tesseract"], capture_output=True, text=True, timeout=5)
+        if r.returncode == 0 and r.stdout.strip():
+            binary = r.stdout.strip()
+    except Exception:
+        pass
+
+    if not binary:
+        try:
+            r = subprocess.run(
+                "find /usr /usr/local /opt -name 'tesseract' -type f -executable 2>/dev/null | head -1",
+                shell=True, capture_output=True, text=True, timeout=10,
+            )
+            if r.stdout.strip():
+                binary = r.stdout.strip()
+        except Exception:
+            pass
+
+    # Windows fallback
+    if not binary:
+        win = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+        if os.path.isfile(win):
+            binary = win
+
+    if binary:
+        pytesseract.pytesseract.tesseract_cmd = binary
+
+    # ── 2. Find tessdata and set TESSDATA_PREFIX ─────────────────
+    if not os.environ.get("TESSDATA_PREFIX"):
+        try:
+            r = subprocess.run(
+                "find /usr /usr/local -name 'eng.traineddata' 2>/dev/null | head -1",
+                shell=True, capture_output=True, text=True, timeout=10,
+            )
+            if r.stdout.strip():
+                tessdata_dir = os.path.dirname(r.stdout.strip())
+                os.environ["TESSDATA_PREFIX"] = tessdata_dir
+        except Exception:
+            pass
+
+    return binary
+
+_TESSERACT_CMD = _setup_tesseract()
 
 import streamlit as st
 import tempfile
