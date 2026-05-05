@@ -220,7 +220,7 @@ class Orchestrator:
             # only when local engines have exhausted their retries and the
             # output is still clearly unusable (score < 0.35). This is a
             # real cost/privacy tradeoff decision — logged for transparency.
-            if not quality.is_acceptable and quality.overall_score < 0.20:
+            if not quality.is_acceptable and quality.overall_score < 0.35:
                 api_result = self._try_api_escalation(path, quality)
                 if api_result is not None:
                     api_text, api_quality = api_result
