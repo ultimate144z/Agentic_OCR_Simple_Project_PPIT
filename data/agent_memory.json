@@ -82,14 +82,66 @@
       "image_brightness": 172.16425791556728,
       "image_blur_score": 1497.4107332295152,
       "success": true
+    },
+    {
+      "timestamp": "2026-05-05T21:54:07.903728",
+      "image_path": "F:\\temp\\tmpx2t_p11a.jpeg",
+      "engine_used": "easyocr",
+      "preprocessing_strategy": "standard",
+      "quality_score": 0.4346534653465346,
+      "confidence": 0.5148514851485149,
+      "was_corrected": false,
+      "user_corrections": 0,
+      "image_brightness": 157.6343445652174,
+      "image_blur_score": 399.3771570429304,
+      "success": true
+    },
+    {
+      "timestamp": "2026-05-05T21:55:04.856299",
+      "image_path": "F:\\temp\\tmpzvi73tcf.jpeg",
+      "engine_used": "easyocr",
+      "preprocessing_strategy": "standard",
+      "quality_score": 0.6729320549286943,
+      "confidence": 0.700598721595361,
+      "was_corrected": false,
+      "user_corrections": 0,
+      "image_brightness": 209.94417967038777,
+      "image_blur_score": 5284.087088845978,
+      "success": true
+    },
+    {
+      "timestamp": "2026-05-05T22:34:18.761483",
+      "image_path": "F:\\temp\\tmp61ee1dxr.jpeg",
+      "engine_used": "easyocr",
+      "preprocessing_strategy": "standard",
+      "quality_score": 0.4346153846153846,
+      "confidence": 0.5274725274725275,
+      "was_corrected": false,
+      "user_corrections": 0,
+      "image_brightness": 157.6343445652174,
+      "image_blur_score": 399.3771570429304,
+      "success": true
+    },
+    {
+      "timestamp": "2026-05-05T22:35:32.009889",
+      "image_path": "F:\\temp\\tmp8cs4as41.jpeg",
+      "engine_used": "easyocr",
+      "preprocessing_strategy": "standard",
+      "quality_score": 0.6729320549286943,
+      "confidence": 0.700598721595361,
+      "was_corrected": false,
+      "user_corrections": 0,
+      "image_brightness": 209.94417967038777,
+      "image_blur_score": 5284.087088845978,
+      "success": true
     }
   ],
   "correction_patterns": {},
   "engine_performance": {
     "easyocr": {
-      "total_runs": 6,
-      "avg_confidence": 0.6511195760899209,
-      "total_confidence": 3.9067174565395253
+      "total_runs": 10,
+      "avg_confidence": 0.6350238912351289,
+      "total_confidence": 6.350238912351289
     },
     "tesseract": {
       "total_runs": 0,
