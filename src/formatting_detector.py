@@ -76,7 +76,7 @@ class FormattingDetector:
         
         # Heuristic: both columns should have a significant number of boxes
         if left_count > 4 and right_count > 4:
-            print(f"[formatting] two-column split_x={split_x:.1f} (left={left_count}, right={right_count})")
+            pass  # two-column layout detected
             return True, split_x
             
         return False, 0.0
