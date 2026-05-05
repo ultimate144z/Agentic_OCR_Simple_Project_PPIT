@@ -82,12 +82,15 @@ class OCREngine:
 
     def run(self, image: Path | str | np.ndarray) -> str:
         if self.engine == "auto":
-            try:
-                text = self._run_easyocr_text(image)
-            except Exception:
-                text = ""
-            if text.strip():
-                return self._postprocess_text(text)
+            # Only attempt EasyOCR if a pre-warmed reader is available.
+            # If not (e.g. Streamlit Cloud deployment), skip straight to Tesseract.
+            if getattr(OCREngine, "_cached_easyocr_reader", None) is not None:
+                try:
+                    text = self._run_easyocr_text(image)
+                except Exception:
+                    text = ""
+                if text.strip():
+                    return self._postprocess_text(text)
             return self._postprocess_text(self._run_tesseract_text(image))
 
         if self.engine == "easyocr":
@@ -106,13 +109,14 @@ class OCREngine:
 
     def run_with_boxes(self, image: Path | str | np.ndarray) -> List[Dict[str, Any]]:
         if self.engine == "auto":
-            try:
-                boxes = self._run_easyocr_boxes(image)
-            except Exception:
-                boxes = []
-            if boxes:
-                self.last_confidence_rows = self._to_confidence_rows(boxes)
-                return boxes
+            if getattr(OCREngine, "_cached_easyocr_reader", None) is not None:
+                try:
+                    boxes = self._run_easyocr_boxes(image)
+                except Exception:
+                    boxes = []
+                if boxes:
+                    self.last_confidence_rows = self._to_confidence_rows(boxes)
+                    return boxes
             boxes = self._run_tesseract_boxes(image)
             self.last_confidence_rows = self._to_confidence_rows(boxes)
             return boxes
@@ -507,4 +511,3 @@ class OCREngine:
                 }
             )
         return rows
-
