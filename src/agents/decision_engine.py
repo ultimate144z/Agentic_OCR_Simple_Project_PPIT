@@ -126,22 +126,19 @@ class DecisionEngine:
         best_from_history = self.memory.get_best_engine()
 
         # Rule-based selection with image characteristics
-        engine = "easyocr"  # default
+        engine = "tesseract"  # default (easyocr requires local deployment with GPU/high RAM)
 
         if profile.density == "dense":
-            # Dense text → Tesseract with specific PSM modes works better
             engine = "tesseract"
             strategy.reasoning.append("Dense text detected → Tesseract selected (better for dense pages)")
 
         elif profile.is_blurry:
-            # Blurry images → EasyOCR tends to be more robust
-            engine = "easyocr"
-            strategy.reasoning.append("Blurry image detected → EasyOCR selected (more blur-tolerant)")
+            engine = "tesseract"
+            strategy.reasoning.append("Blurry image detected → Tesseract selected with aggressive preprocessing")
 
         elif profile.is_dark or profile.is_low_contrast:
-            # Poor quality images → EasyOCR with enhanced preprocessing
-            engine = "easyocr"
-            strategy.reasoning.append("Poor image quality → EasyOCR with enhanced preprocessing")
+            engine = "tesseract"
+            strategy.reasoning.append("Poor image quality → Tesseract with enhanced preprocessing")
 
         elif profile.quality_score > 80 and best_from_history:
             # Good quality + historical data → use what worked best
@@ -152,13 +149,13 @@ class DecisionEngine:
             )
 
         else:
-            strategy.reasoning.append("Standard conditions → EasyOCR selected (default for handwriting)")
+            strategy.reasoning.append("Standard conditions → Tesseract selected")
 
         # Safety check
         check = self.safety.validate_action("select_ocr_engine", {"engine": engine})
         if not check.is_safe:
-            engine = "easyocr"
-            strategy.reasoning.append(f"Safety override: reverted to easyocr ({check.blocked_reason})")
+            engine = "tesseract"
+            strategy.reasoning.append(f"Safety override: reverted to tesseract ({check.blocked_reason})")
 
         return engine
 
@@ -230,13 +227,9 @@ class DecisionEngine:
         retry = ProcessingStrategy()
         retry.reasoning = [f"Retry #{attempt + 1}: quality {quality_score:.2f} below threshold {current_strategy.confidence_threshold:.2f}"]
 
-        # Switch engine
-        if current_strategy.ocr_engine == "easyocr":
-            retry.ocr_engine = "tesseract"
-            retry.reasoning.append("Switching from EasyOCR → Tesseract for retry")
-        else:
-            retry.ocr_engine = "easyocr"
-            retry.reasoning.append("Switching from Tesseract → EasyOCR for retry")
+        # Retry with different PSM modes / aggressive preprocessing — stay on tesseract
+        retry.ocr_engine = "tesseract"
+        retry.reasoning.append("Retry with Tesseract + aggressive preprocessing")
 
         # Escalate preprocessing
         retry.preprocessing = "aggressive"
