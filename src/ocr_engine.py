@@ -159,6 +159,11 @@ class OCREngine:
     def _configure_tesseract(self) -> None:
         found = shutil.which("tesseract")
         if not found:
+            for linux_path in ["/usr/bin/tesseract", "/usr/local/bin/tesseract"]:
+                if Path(linux_path).exists():
+                    found = linux_path
+                    break
+        if not found:
             default_path = Path(r"C:\Program Files\Tesseract-OCR\tesseract.exe")
             if default_path.exists():
                 found = str(default_path)
